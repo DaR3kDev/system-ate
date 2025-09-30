@@ -162,11 +162,7 @@ const handleNavClick = () => {
 
       <!-- Menú -->
       <nav class="flex flex-col flex-1 px-2 py-4 space-y-1">
-        <div
-          v-for="item in menuItems"
-          :key="item.name"
-          class="relative"
-        >
+        <div v-for="item in menuItems" :key="item.name" class="relative">
           <RouterLink
             :to="item.link"
             :class="[
@@ -191,7 +187,7 @@ const handleNavClick = () => {
             <div
               v-if="!isExpanded && !isMobile"
               class="absolute left-[calc(100%+1rem)] top-1/2 -translate-y-1/2 px-3 py-2 text-sm font-medium bg-neutral text-neutral-content rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all duration-200"
-              style="z-index: 99999;"
+              style="z-index: 99999"
             >
               {{ item.name }}
             </div>
