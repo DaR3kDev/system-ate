@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { reactive } from 'vue'
 import {
   IconMenu2,
   IconHome,
@@ -12,27 +12,11 @@ import {
   IconX,
 } from '@tabler/icons-vue'
 import DarkMode from '../toggles/DarkMode.vue'
+import { useSidebarStore } from '@/stores/sidebar/sidebar'
 
-// Estado del sidebar
-const isOpen = ref(false)
+const sidebar = useSidebarStore()
 
-// Guardar el estado expandido en localStorage
-const isExpanded = ref(true)
-const initialLoad = ref(true)
-
-// Cargar estado antes de montar para evitar flash
-const stored = localStorage.getItem('sidebar-expanded')
-if (stored !== null) {
-  isExpanded.value = stored === 'true'
-}
-
-onMounted(() => {
-  setTimeout(() => {
-    initialLoad.value = false
-  }, 50)
-})
-
-// Datos del usuario
+// Simulación de datos de usuario
 const user = reactive({
   name: 'Kevin Villegas',
   role: 'Administrador',
@@ -49,45 +33,20 @@ const menuItems = [
   { name: 'Configuración', icon: IconSettings, link: '/configuracion' },
 ]
 
-// Detectar ancho de ventana
-const windowWidth = ref(window.innerWidth)
-const handleResize = () => (windowWidth.value = window.innerWidth)
-
-onMounted(() => window.addEventListener('resize', handleResize))
-onUnmounted(() => window.removeEventListener('resize', handleResize))
-
-const isMobile = computed(() => windowWidth.value < 1024)
-
-// Funciones
-const toggleSidebar = () => (isOpen.value = !isOpen.value)
-const toggleExpand = () => {
-  isExpanded.value = !isExpanded.value
-  localStorage.setItem('sidebar-expanded', isExpanded.value.toString())
-}
-const closeSidebar = () => (isOpen.value = false)
 const handleNavClick = () => {
-  if (isMobile.value) {
-    closeSidebar()
-  }
+  if (sidebar.isMobile) sidebar.closeSidebar()
 }
 </script>
 
 <template>
-  <!-- Overlay móvil (debe ir ANTES del botón para estar debajo) -->
-  <div
-    v-if="isMobile && isOpen"
-    @click="closeSidebar"
-    class="fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300"
-  ></div>
-
   <!-- Botón menú móvil -->
   <button
-    v-if="isMobile"
-    class="fixed top-4 left-4 z-50 p-2 bg-base-100 shadow-lg rounded-lg hover:bg-base-200 transition-colors"
-    @click="toggleSidebar"
+    v-if="sidebar.isMobile"
+    class="fixed top-4 left-4 z-50 p-3 bg-base-100/80 backdrop-blur-xl shadow-lg rounded-2xl hover:bg-base-200 transition-colors"
+    @click="sidebar.toggleSidebar"
     aria-label="Abrir/Cerrar menú"
   >
-    <component :is="isOpen ? IconX : IconMenu2" class="h-6 w-6 text-base-content" />
+    <component :is="sidebar.isOpen ? IconX : IconMenu2" class="h-6 w-6 text-base-content" />
   </button>
 
   <!-- Sidebar -->
@@ -100,93 +59,127 @@ const handleNavClick = () => {
     leave-to-class="-translate-x-full"
   >
     <aside
-      v-if="isOpen || !isMobile"
+      v-if="sidebar.isOpen || !sidebar.isMobile"
       :class="[
-        'fixed top-0 left-0 h-screen flex flex-col shadow-xl z-50 border-r bg-base-200 border-base-300',
-        isMobile ? 'w-64' : isExpanded ? 'w-64' : 'w-20',
-        !initialLoad && !isMobile ? 'transition-[width] duration-300 ease-in-out' : '',
+        'fixed top-0 left-0 h-screen flex flex-col shadow-xl z-50 border-r border-base-300/40 backdrop-blur-2xl bg-base-200/80',
+        sidebar.isMobile ? 'w-72' : sidebar.isExpanded ? 'w-72' : 'w-20',
+        !sidebar.initialLoad && !sidebar.isMobile
+          ? 'transition-[width] duration-300 ease-in-out'
+          : '',
       ]"
     >
       <!-- HEADER -->
-      <div class="flex items-center justify-between p-4 border-b border-base-300 min-h-[64px]">
+      <div
+        class="flex items-center justify-between p-4 border-b border-base-300/40 min-h-[64px] relative"
+      >
+        <!-- Título -->
         <span
-          v-if="isExpanded"
-          class="font-bold text-lg text-base-content transition-opacity duration-200"
-          :class="{ 'opacity-0': initialLoad }"
+          v-if="sidebar.isExpanded || sidebar.isMobile"
+          class="font-extrabold text-lg tracking-wide text-base-content transition-opacity duration-200"
+          :class="{ 'opacity-0': sidebar.initialLoad }"
         >
           Menú
         </span>
+
+        <!-- Botón expandir en desktop -->
         <button
-          v-if="!isMobile"
-          @click="toggleExpand"
-          class="p-2 rounded-md hover:bg-base-300 transition-colors"
-          :class="{ 'mx-auto': !isExpanded }"
+          v-if="!sidebar.isMobile"
+          @click="sidebar.toggleExpand"
+          class="p-2 rounded-lg hover:bg-base-300/70 transition-colors"
+          :class="{ 'mx-auto': !sidebar.isExpanded }"
           title="Expandir/Colapsar menú"
         >
           <IconLayout2
             :class="[
               'h-5 w-5 text-base-content transition-transform duration-300',
-              !isExpanded ? 'rotate-90' : '',
+              !sidebar.isExpanded ? 'rotate-90' : '',
             ]"
           />
         </button>
+
+        <!-- Botón cerrar en móvil -->
+        <button
+          v-if="sidebar.isMobile"
+          @click="sidebar.closeSidebar"
+          class="absolute right-4 top-4 p-2 rounded-lg hover:bg-base-300 transition-colors"
+          title="Cerrar menú"
+        >
+          <IconX class="h-5 w-5 text-base-content" />
+        </button>
       </div>
 
-      <!-- Usuario -->
+      <!-- USUARIO -->
       <div
         :class="[
-          'flex flex-col items-center p-4 border-b border-base-300',
-          !isExpanded ? 'py-3' : '',
+          'flex flex-col items-center p-5 border-b border-base-300/40',
+          !sidebar.isExpanded && !sidebar.isMobile ? 'py-3' : '',
         ]"
       >
         <img
           :src="user.avatar"
           alt="Avatar"
           :class="[
-            'rounded-full border-2 border-primary shadow-sm object-cover transition-all duration-300',
-            isExpanded ? 'h-14 w-14' : 'h-10 w-10',
+            'rounded-full border-2 border-primary shadow-lg object-cover transition-all duration-300',
+            'hover:scale-105 hover:shadow-primary/40',
+            sidebar.isExpanded || sidebar.isMobile ? 'h-16 w-16' : 'h-10 w-10',
           ]"
         />
         <Transition
-          enter-active-class="transition-opacity duration-200 delay-100"
+          enter-active-class="transition-opacity duration-300 delay-100"
           leave-active-class="transition-opacity duration-200"
           enter-from-class="opacity-0"
           leave-to-class="opacity-0"
         >
-          <div v-if="isExpanded && !initialLoad" class="mt-3 text-center">
+          <div
+            v-if="(sidebar.isExpanded || sidebar.isMobile) && !sidebar.initialLoad"
+            class="mt-3 text-center"
+          >
             <p class="font-semibold text-base-content text-sm">{{ user.name }}</p>
-            <p class="text-xs text-base-content opacity-70">{{ user.role }}</p>
+            <p class="text-xs text-base-content/60">{{ user.role }}</p>
           </div>
         </Transition>
       </div>
 
-      <!-- Menú -->
-      <nav class="flex flex-col flex-1 px-2 py-4 space-y-1">
+      <!-- MENÚ -->
+      <nav class="flex flex-col flex-1 px-3 py-4 space-y-1">
         <div v-for="item in menuItems" :key="item.name" class="relative">
           <RouterLink
             :to="item.link"
             :class="[
-              'flex items-center gap-3 py-3 rounded-lg hover:bg-primary hover:text-primary-content transition-all duration-200 group',
-              isExpanded ? 'px-4' : 'px-2 justify-center',
+              'flex items-center gap-3 py-3 rounded-xl transition-all duration-200 group relative',
+              'hover:bg-primary/90 hover:text-primary-content',
+              sidebar.isExpanded || sidebar.isMobile ? 'px-4' : 'px-2 justify-center',
             ]"
             @click="handleNavClick"
           >
+            <!-- Icono -->
             <component :is="item.icon" class="h-6 w-6 flex-shrink-0" />
+
+            <!-- Texto -->
             <Transition
               enter-active-class="transition-opacity duration-200 delay-100"
               leave-active-class="transition-opacity duration-200"
               enter-from-class="opacity-0"
               leave-to-class="opacity-0"
             >
-              <span v-if="isExpanded && !initialLoad" class="text-sm font-medium whitespace-nowrap">
+              <span
+                v-if="(sidebar.isExpanded || sidebar.isMobile) && !sidebar.initialLoad"
+                class="text-sm font-medium whitespace-nowrap"
+              >
                 {{ item.name }}
               </span>
             </Transition>
 
-            <!-- Tooltip flotante fuera del sidebar -->
+            <!-- Indicador activo (barra lateral) -->
             <div
-              v-if="!isExpanded && !isMobile"
-              class="absolute left-[calc(100%+1rem)] top-1/2 -translate-y-1/2 px-3 py-2 text-sm font-medium bg-neutral text-neutral-content rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all duration-200"
+              v-if="$route.path === item.link"
+              class="absolute left-0 top-0 h-full w-1 rounded-r-lg bg-primary"
+            ></div>
+
+            <!-- Tooltip -->
+            <div
+              v-if="!sidebar.isExpanded && !sidebar.isMobile"
+              class="absolute left-[calc(100%+1rem)] top-1/2 -translate-y-1/2 px-3 py-2 text-sm font-medium bg-neutral text-neutral-content rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition duration-200"
               style="z-index: 99999"
             >
               {{ item.name }}
@@ -195,16 +188,17 @@ const handleNavClick = () => {
         </div>
       </nav>
 
-      <!-- Footer -->
-      <div class="flex flex-col p-4 border-t border-base-300 gap-3">
-        <div :class="{ 'flex justify-center': !isExpanded }">
-          <DarkMode />
+      <!-- FOOTER -->
+      <div class="flex flex-col p-4 border-t border-base-300/40 gap-3">
+        <div :class="{ 'flex justify-center': !sidebar.isExpanded && !sidebar.isMobile }">
+          <DarkMode class="btn btn-circle btn-ghost shadow-md hover:shadow-primary/30" />
         </div>
         <RouterLink
           to="/logout"
           :class="[
-            'flex items-center gap-2 py-2 rounded-lg hover:bg-error hover:text-error-content transition-all duration-200',
-            isExpanded ? 'px-4' : 'px-2 justify-center',
+            'flex items-center gap-2 py-2 rounded-xl transition-all duration-200',
+            'hover:bg-error hover:text-error-content',
+            sidebar.isExpanded || sidebar.isMobile ? 'px-4' : 'px-2 justify-center',
           ]"
           @click="handleNavClick"
         >
@@ -215,7 +209,12 @@ const handleNavClick = () => {
             enter-from-class="opacity-0"
             leave-to-class="opacity-0"
           >
-            <span v-if="isExpanded && !initialLoad" class="text-sm font-medium">Cerrar sesión</span>
+            <span
+              v-if="(sidebar.isExpanded || sidebar.isMobile) && !sidebar.initialLoad"
+              class="text-sm font-medium"
+            >
+              Cerrar sesión
+            </span>
           </Transition>
         </RouterLink>
       </div>
@@ -224,17 +223,12 @@ const handleNavClick = () => {
 </template>
 
 <style scoped>
-/* Estilo para link activo */
 .router-link-active {
   background-color: rgb(var(--p) / 1);
   color: rgb(var(--pc) / 1);
+  font-weight: 600;
 }
-
-/* Asegurar que el sidebar no tenga overflow que corte los tooltips */
-aside {
-  overflow: visible !important;
-}
-
+aside,
 nav {
   overflow: visible !important;
 }

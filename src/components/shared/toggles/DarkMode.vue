@@ -1,32 +1,30 @@
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
-import { IconSun, IconMoonStars } from "@tabler/icons-vue";
+import { ref, watch, computed } from 'vue'
+import { IconSun, IconMoonStars } from '@tabler/icons-vue'
 
 // Detectar preferencia de tema del sistema
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
-const theme = ref<"light" | "dim">(
-  (localStorage.getItem("theme") as "light" | "dim") || (prefersDark ? "dim" : "light")
-);
+const theme = ref<'light' | 'dim'>(
+  (localStorage.getItem('theme') as 'light' | 'dim') || (prefersDark ? 'dim' : 'light'),
+)
 
 const applyTheme = () => {
-  document.documentElement.setAttribute("data-theme", theme.value);
-  localStorage.setItem("theme", theme.value);
-};
+  document.documentElement.setAttribute('data-theme', theme.value)
+  localStorage.setItem('theme', theme.value)
+}
 
 const switchTheme = () => {
-  theme.value = theme.value === "light" ? "dim" : "light";
-};
+  theme.value = theme.value === 'light' ? 'dim' : 'light'
+}
 
 const toggleTheme = () => {
-  document.startViewTransition
-    ? document.startViewTransition(() => switchTheme())
-    : switchTheme();
-};
+  document.startViewTransition ? document.startViewTransition(() => switchTheme()) : switchTheme()
+}
 
-watch(theme, applyTheme, { immediate: true });
+watch(theme, applyTheme, { immediate: true })
 
-const isDark = computed(() => theme.value === "dim");
+const isDark = computed(() => theme.value === 'dim')
 </script>
 
 <template>
@@ -34,9 +32,11 @@ const isDark = computed(() => theme.value === "dim");
     @click="toggleTheme"
     :aria-label="isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
     class="p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-    :class="isDark 
-      ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white hover:from-gray-800 hover:to-gray-700'
-      : 'bg-gradient-to-br from-gray-700 to-gray-600 text-white hover:from-gray-600 hover:to-gray-500'"
+    :class="
+      isDark
+        ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-white hover:from-gray-800 hover:to-gray-700'
+        : 'bg-gradient-to-br from-gray-700 to-gray-600 text-white hover:from-gray-600 hover:to-gray-500'
+    "
   >
     <transition name="fade-scale" mode="out-in">
       <IconSun
