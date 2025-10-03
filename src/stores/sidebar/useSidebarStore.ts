@@ -23,7 +23,7 @@ export const useSidebarStore = defineStore('sidebar', () => {
   })
   onUnmounted(() => window.removeEventListener('resize', handleResize))
 
-  // COMPUTED: saber si es móvil
+  // COMPUTED RENDERIZA LOS DISPOSITIVOS MOVILES
   const isMobile = computed(() => windowWidth.value < 1024)
 
   // ACCIONES

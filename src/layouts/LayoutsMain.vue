@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Sidebar from '@/components/shared/sidebar/Sidebar.vue'
-import { useSidebarStore } from '@/stores/sidebar/sidebar'
+import { useSidebarStore } from '@/stores/sidebar/useSidebarStore'
 
 const sidebar = useSidebarStore()
 </script>

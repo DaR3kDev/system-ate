@@ -12,7 +12,7 @@ import {
   IconX,
 } from '@tabler/icons-vue'
 import DarkMode from '../toggles/DarkMode.vue'
-import { useSidebarStore } from '@/stores/sidebar/sidebar'
+import { useSidebarStore } from '@/stores/sidebar/useSidebarStore'
 
 const sidebar = useSidebarStore()
 

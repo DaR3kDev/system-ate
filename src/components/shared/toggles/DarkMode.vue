@@ -2,7 +2,6 @@
 import { ref, watch, computed } from 'vue'
 import { IconSun, IconMoonStars } from '@tabler/icons-vue'
 
-// Detectar preferencia de tema del sistema
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 const theme = ref<'light' | 'dim'>(

@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { PropType, FunctionalComponent, SVGAttributes } from 'vue'
+import { FunctionalComponent, SVGAttributes } from 'vue'
 
-const props = defineProps({
-  title: { type: String, required: true },
-  value: { type: [String, Number], required: true },
-  description: { type: String, required: true },
-  badgeText: { type: String, required: true },
-  badgeColor: { type: String, default: 'badge-primary' },
-  icon: {
-    type: Function as PropType<FunctionalComponent<SVGAttributes>>,
-    required: true,
-  },
-  footerText: { type: String, required: true },
-})
+interface CardProps {
+  title: string
+  value: string | number
+  description: string
+  badgeText: string
+  badgeColor?: string
+  icon: FunctionalComponent<SVGAttributes>
+  footerText?: string
+}
+
+defineProps<CardProps>()
 </script>
 
 <template>
@@ -20,7 +19,7 @@ const props = defineProps({
     class="card bg-base-100 shadow-xl hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 border border-base-200"
   >
     <div class="card-body p-6">
-      <!-- Header con icono + badge -->
+      <!-- Header  -->
       <div class="flex justify-between items-start">
         <div class="flex flex-col gap-1">
           <p class="text-sm text-base-content/60">{{ description }}</p>
@@ -33,13 +32,12 @@ const props = defineProps({
         </span>
       </div>
 
-      <!-- Divider moderno -->
+      <!-- Divider -->
       <div class="divider my-3"></div>
 
-      <!-- Footer con texto -->
+      <!-- Footer  -->
       <div class="flex items-center justify-between text-sm text-base-content/70">
         <span>{{ footerText }}</span>
-        <!-- Icono de refuerzo -->
         <div class="p-2 rounded-full bg-base-200">
           <component :is="icon" class="w-5 h-5 text-primary" />
         </div>
