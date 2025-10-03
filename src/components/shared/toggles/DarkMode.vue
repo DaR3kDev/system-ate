@@ -1,34 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { computed } from 'vue'
+import { useThemeStore } from '@/stores/theme/useThemeStore'
 import { IconSun, IconMoonStars } from '@tabler/icons-vue'
 
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-const theme = ref<'light' | 'dim'>(
-  (localStorage.getItem('theme') as 'light' | 'dim') || (prefersDark ? 'dim' : 'light'),
-)
-
-const applyTheme = () => {
-  document.documentElement.setAttribute('data-theme', theme.value)
-  localStorage.setItem('theme', theme.value)
-}
-
-const switchTheme = () => {
-  theme.value = theme.value === 'light' ? 'dim' : 'light'
-}
-
-const toggleTheme = () => {
-  document.startViewTransition ? document.startViewTransition(() => switchTheme()) : switchTheme()
-}
-
-watch(theme, applyTheme, { immediate: true })
-
-const isDark = computed(() => theme.value === 'dim')
+const themeStore = useThemeStore()
+const isDark = computed(() => themeStore.theme === 'dim')
 </script>
 
 <template>
   <button
-    @click="toggleTheme"
+    @click="themeStore.toggleTheme"
     :aria-label="isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
     class="p-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
     :class="

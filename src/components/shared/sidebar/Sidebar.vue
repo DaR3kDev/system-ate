@@ -2,14 +2,17 @@
 import { reactive } from 'vue'
 import {
   IconMenu2,
-  IconHome,
-  IconUser,
-  IconUsersGroup,
-  IconReportAnalytics,
-  IconSettings,
+  IconHome2,
+  IconHeartHandshake,
+  IconUsers,
+  IconHomeHeart,
+  IconChartHistogram,
+  IconAdjustments,
   IconLogout,
   IconLayout2,
   IconX,
+  IconUserShield,
+  IconCalendarEvent,
 } from '@tabler/icons-vue'
 import DarkMode from '../toggles/DarkMode.vue'
 import { useSidebarStore } from '@/stores/sidebar/useSidebarStore'
@@ -25,14 +28,15 @@ const user = reactive({
 
 // Menú
 const menuItems = [
-  { name: 'Dashboard', icon: IconHome, link: '/' },
-  { name: 'Beneficios', icon: IconUser, link: '/beneficios' },
-  { name: 'Afiliados', icon: IconUsersGroup, link: '/afiliados' },
-  { name: 'Familias', icon: IconUsersGroup, link: '/familias' },
-  { name: 'Reportes', icon: IconReportAnalytics, link: '/reportes' },
-  { name: 'Configuración', icon: IconSettings, link: '/configuracion' },
+  { name: 'Dashboard', icon: IconHome2, link: '/' },
+  { name: 'Beneficios', icon: IconHeartHandshake, link: '/beneficios' },
+  { name: 'Afiliados', icon: IconUsers, link: '/afiliados' },
+  { name: 'Familias', icon: IconHomeHeart, link: '/familias' },
+  { name: 'Delegados', icon: IconUserShield, link: '/delegados' },
+  { name: 'Eventos', icon: IconCalendarEvent, link: '/eventos' },
+  { name: 'Reportes', icon: IconChartHistogram, link: '/reportes' },
+  { name: 'Configuración', icon: IconAdjustments, link: '/configuracion' },
 ]
-
 const handleNavClick = () => {
   if (sidebar.isMobile) sidebar.closeSidebar()
 }

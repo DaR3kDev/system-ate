@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
 
-const props = defineProps<{
+interface PaginationProps {
   totalPages: number
   currentPage: number
-}>()
+}
 
-const emit = defineEmits<{
+interface PaginationEmits {
   (e: 'update:page', page: number): void
-}>()
+}
+
+defineProps<PaginationProps>()
+
+const emit = defineEmits<PaginationEmits>()
 
 function goToPage(page: number) {
   emit('update:page', page)
